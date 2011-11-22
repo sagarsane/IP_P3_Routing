@@ -5,14 +5,13 @@
 #include<math.h>
 #include<stdint.h>
 #include<string.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <pthread.h>
 #include<sys/time.h>
 #define INF 999999
 typedef struct node_{
 	double *edge_cost;
-	unsigned int pred;
+	int pred;
+	int flag; //denotes whether node's distance to src is permanent or can change
+	double cost; // length of node to source
 }Node;
 
 Node *node;
