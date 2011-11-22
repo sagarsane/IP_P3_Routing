@@ -9,11 +9,16 @@
 #include <netdb.h>
 #include <pthread.h>
 #include<sys/time.h>
-//#include <inf.h>
 #define INF 999999
 typedef struct node_{
-	unsigned int *edge_cost;
+	double *edge_cost;
 	unsigned int pred;
 }Node;
 
 Node *node;
+FILE *file;
+int total_nodes;
+
+void initialize_topology();
+void print_topology();
+void link_state(int, int);
