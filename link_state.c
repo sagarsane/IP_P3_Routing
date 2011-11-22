@@ -54,9 +54,10 @@ void reset_topology(){
 }
 int main(int argc, char *argv[]){
 	int i;
-	clock_t start,end;
+	//clock_t start,end;
 	long cpu_time_used;
 	struct tms *buf,*buf1;
+	struct timeval start, end;
 	total_nodes = -1;
 	
 	if(argc != 4){
@@ -65,24 +66,29 @@ int main(int argc, char *argv[]){
 	}
 	file = fopen(argv[1],"r");
 	initialize_topology();
-	start = clock();
+	//start = clock();
 	//start = times(buf);
 
 	//s = getcputime();
-	printf("Start : %ld\n",(long)start);
+	//printf("Start : %ld\n",(long)start);
 	for(i=0;i<total_nodes;i++)
 	{
+		gettimeofday(&start,NULL);
 		link_state(i+1,0);
 		save_path(i+1);
 	//	print_topology(i+1);
 		reset_topology();
+		gettimeofday(&end, NULL);
+		printf("Time taken for source Node %d is : %.15lf microseconds\n",i+1,(double)(end.tv_usec-start.tv_usec + (end.tv_sec-start.tv_sec)));
+
+
 	}
 
 	//end = clock();
-	end = times(&buf1);
-	printf("End : %ld\n",(long)end);
-	cpu_time_used = ((long) (end - start)) / CLOCKS_PER_SEC;
-	printf("Time taken : %ld\n",cpu_time_used);
+	//end = times(&buf1);
+	//printf("End : %ld\n",(long)end);
+	//cpu_time_used = ((long) (end - start)) / CLOCKS_PER_SEC;
+	//printf("Time taken : %ld\n",cpu_time_used);
 
 	print_topology(atoi(argv[2]));
 	print_topology(atoi(argv[3]));
