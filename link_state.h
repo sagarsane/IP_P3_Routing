@@ -5,7 +5,9 @@
 #include<math.h>
 #include<stdint.h>
 #include<string.h>
+#include<time.h>
 #include<sys/time.h>
+#include<sys/resource.h>
 #define INF 999999
 typedef struct node_{
 	double *edge_cost;

@@ -1,8 +1,26 @@
 #include "link_state.h"
 
+double getcputime(void)        
+{ 
+	struct timeval tim;        
+        struct rusage ru;        
+        getrusage(RUSAGE_SELF, &ru);        
+        tim=ru.ru_utime;        
+        double t=(double)tim.tv_sec + (double)tim.tv_usec / 1000000.0;
+	printf("T: %lf\n",t); 
+        tim=ru.ru_stime;        
+        t+=(double)tim.tv_sec + (double)tim.tv_usec / 1000000.0;        
+	printf("T+: %lf\n",t);
+        return t; 
+}
+
 int main(int argc, char *argv[]){
 	int i;
+	clock_t start,end;
+	double cpu_time_used;
+	struct tms *buf,*buf1;
 	total_nodes = -1;
+	
 	if(argc != 4){
 		perror("Incorrect command line arguments\n");
 		exit(-1);
@@ -10,14 +28,25 @@ int main(int argc, char *argv[]){
 	file = fopen(argv[1],"r");
 	initialize_topology();
 //	print_topology();
+	//start = clock();
+	//struct tms buf;
+	start = times(&buf);
+	//s = getcputime();
+	printf("Start : %.8lf\n",(double)start);
 	link_state(atoi(argv[2]),atoi(argv[3]),0);
 	for(i=0;i<total_nodes;i++)
 	{
 		free(node[i].edge_cost);
 	}
 	free(node);
+	//struct tms buf1;
+	end = times(&buf1);
+	printf("End : %.8lf\n",(double)end);
+	cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
 	initialize_topology();
 	link_state(atoi(argv[3]),atoi(argv[2]),1);
+	printf("Time taken : %lf\n",cpu_time_used);
+
 }	
 
 void initialize_topology(){
