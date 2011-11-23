@@ -20,4 +20,4 @@ int total_nodes;
 
 void initialize_topology();
 void print_topology();
-void link_state(int, int);
+void link_state(int, int, char);

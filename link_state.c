@@ -1,6 +1,7 @@
 #include "link_state.h"
 
 int main(int argc, char *argv[]){
+	int i;
 	total_nodes = -1;
 	if(argc != 4){
 		perror("Incorrect command line arguments\n");
@@ -8,8 +9,15 @@ int main(int argc, char *argv[]){
 	}
 	file = fopen(argv[1],"r");
 	initialize_topology();
-	print_topology();
-	link_state(atoi(argv[2]),atoi(argv[3]));
+//	print_topology();
+	link_state(atoi(argv[2]),atoi(argv[3]),0);
+	for(i=0;i<total_nodes;i++)
+	{
+		free(node[i].edge_cost);
+	}
+	free(node);
+	initialize_topology();
+	link_state(atoi(argv[3]),atoi(argv[2]),1);
 }	
 
 void initialize_topology(){
@@ -18,9 +26,9 @@ void initialize_topology(){
 		perror("Cannot Open File\n");
 		exit(-1);
 	}
-	
+	fseek(file,0,SEEK_SET);	
 	fscanf(file,"%d\n",&total_nodes);
-	printf("%d\n",total_nodes);
+//	printf("%d\n",total_nodes);
 
 	node = (Node *)malloc(sizeof(Node)*total_nodes);
 
@@ -49,67 +57,74 @@ void print_topology()
 		printf("%d : ",i+1);
 		for(j = 0;j < total_nodes; j++){
 			if(node[i].edge_cost[j]!=0)
-			printf("\t%d -> %lf",j+1, node[i].edge_cost[j]);
+			printf("\t%d -> %.2lf",j+1, node[i].edge_cost[j]);
 		}
 		printf("\n");
 	}
 	
 }
 
-void link_state(int src, int dest){
+void link_state(int src, int dest, char flag){
 	
 	int i,k;
 	double min;
 
-	k=dest-1;
-	node[dest-1].cost=0.0f;
-	node[dest-1].flag=1;
+	k=src-1;
+        node[src-1].cost=0.0f;
+        node[src-1].flag=1;
 
-	do	
-	{
-		for(i=0;i<total_nodes;i++)
-		{
-			if(node[k].edge_cost[i]!=0 && node[i].flag == 0)
-			{
-				if(node[k].cost + node[k].edge_cost[i] < node[i].cost)	//update predecessor and cost to src node
-				{
-					node[i].pred = k;			
-					node[i].cost = node[k].cost+node[k].edge_cost[i];
-				}
-			}
-			
-		}
-		k=0,min=INF;
-		//Find next min
-		for(i=0;i<total_nodes;i++)
-		{
-			if(node[i].flag ==0 && node[i].cost < min)
-			{
-				min = node[i].cost;
-				k=i;
-			}
-		}
-		node[k].flag=1;
-	}while(k!=(src-1));
+        do
+        {
+                for(i=0;i<total_nodes;i++)
+                {
+                        if(node[k].edge_cost[i]!=0 && node[i].flag == 0)
+                        {
+                                if(node[k].cost + node[k].edge_cost[i] < node[i].cost)  //update predecessor and cost to src node
+                                {
+                                        node[i].pred = k;
+                                        node[i].cost = node[k].cost+node[k].edge_cost[i];
+                                }
+                        }
 
-	printf("\nLeast cost from source to destination is : %lf\n",node[src-1].cost);
-
-	printf("\nRouting table of source node :\n");
-	i=src-1;
-        printf("%d : ",i+1);
-        for(k = 0;k < total_nodes; k++){
-                        if(node[i].edge_cost[k]!=0)
-                        printf("%d -> %lf\t",k+1, node[i].edge_cost[k]);
-        }
-        
-	printf("\n\nRouting table of destination node :\n");
-        i=dest-1;
-        printf("%d : ",i+1);
-        for(k = 0;k < total_nodes; k++){
-                        if(node[i].edge_cost[k]!=0)
-                        printf("%d -> %lf\t",k+1, node[i].edge_cost[k]);
-        }
+                }
+                k=0,min=INF;
+                //Find next min
+                for(i=0;i<total_nodes;i++)
+                {
+                        if(node[i].flag ==0 && node[i].cost < min)
+                        {
+                                min = node[i].cost;
+                                k=i;
+                        }
+                }
+                node[k].flag=1;
+        }while(k!=(dest-1));
 	
+	if(!flag)
+	printf("\nLeast cost from source to destination is : %.2lf\n",node[dest-1].cost);
+
+	printf("\nRouting table of source node %d -->\n\n",src);
+	printf("  i\t  j\tCost\n");
+	printf("------\t------\t----\n");
+	
+        for(k = 0;k < total_nodes; k++){
+                       // if(node[i].edge_cost[k]!=0)
+			if(node[k].cost!=999999)
+                        printf("  %d\t  %d\t%.2lf\n",src,k+1,node[k].cost);
+			else
+			printf("  %d\t  %d\tINFINITY\n",src,k+1);
+        }
+	//printf("--------------------\n");
+	/*
+	printf("\nRouting table of destination node %d -->\n\n",dest);
+        printf("Node 1\tNode 2\tCost\n");
+        printf("------\t------\t----\n");
+        
+        for(k = 0;k < total_nodes; k++){
+                       // if(node[i].edge_cost[k]!=0)
+                        printf("  %d\t  %d\t%.2lf\n",dest,k+1,node[k].cost);
+        }
+	*/
 	printf("\n\n");
 }
 
