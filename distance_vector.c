@@ -50,7 +50,7 @@ void initialize_topology()
         for(i = 0;i< total_nodes;i++)
 	{ //initialize nodelist structure
                 nodelist[i].id = i;
-		nodelist[i].send_flag = 0;
+		nodelist[i].send_flag = 1;
 		nodelist[i].no_of_neighbors = 0;
 		nodelist[i].count = 0;
 		nodelist[i].dv = (double*) malloc(sizeof(double)*total_nodes);
@@ -99,6 +99,7 @@ void print_topology()
 	{
 		printf("\nNode %d ",nodelist[i].id+1);
 		printf("Neighbours %d\n",nodelist[i].no_of_neighbors);
+		printf("Count is: %d\n",nodelist[i].count);
 //		printf("Neighbors are\n");
 		for(j=0;j<nodelist[i].no_of_neighbors;j++)
 			printf("%2d\t",nodelist[i].neighbor_list[j].id+1);
@@ -150,6 +151,23 @@ void update_distance_vector(int node_id,int neighbor_index)
 	}
 }
 
+void print_dv(int i)
+{
+	int j;
+	 for(j=0;j<total_nodes;j++)
+		printf("%.2lf\t",nodelist[i].dv[j]);
+}
+
+int get_max_count()
+{
+	int i;
+	int max_count_id = 0;
+	for(i=1;i<total_nodes;i++)
+		if(nodelist[max_count_id].count<nodelist[i].count)
+			max_count_id = i;
+	return max_count_id;
+}
+
 int main(int argc, char *argv[]){
 	int initial_node;
 	queue_node curr_node;
@@ -176,7 +194,8 @@ int main(int argc, char *argv[]){
 		printf("inside while %d\n",curr_node.node_id);
 		if(curr_node.node_id == -1)
 			break;
-		nodelist[curr_node.node_id].send_flag = 0;
+		//nodelist[curr_node.node_id].send_flag = 0;
+
 		update_distance_vector(curr_node.node_id,curr_node.neighbor_id);
 	//	printf("inside while again %d\n",curr_node.node_id);
 		if(nodelist[curr_node.node_id].send_flag)
@@ -187,6 +206,15 @@ int main(int argc, char *argv[]){
 	}
 	printf("After Algorithm\n");
 	print_topology();
-		
+
+	printf("\n\nDistance vector for node %d is\n",atoi(argv[3]));
+	print_dv(atoi(argv[3])-1);
+
+	printf("\nDistance vector for node %d is\n",atoi(argv[4]));
+	print_dv(atoi(argv[4])-1);
+
+	int max_count_id = get_max_count();
+	printf("\nMax iterations is %d for node %d \n",nodelist[max_count_id].count,max_count_id+1);
+	
 	return 0;
 }
