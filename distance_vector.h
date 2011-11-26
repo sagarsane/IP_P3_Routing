@@ -17,6 +17,7 @@ typedef struct node_ {
 	int no_of_neighbors;
 	neighbor *neighbor_list;
 	double *dv;
+	int *next_hop;
 } node;
 
 typedef struct queue_node_ {

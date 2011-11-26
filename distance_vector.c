@@ -26,7 +26,7 @@ queue_node remove_from_queue()
 {
 	int i;
 	queue_node ret = node_queue.id_list[0];
-	printf("Index is %d\n",node_queue.index);
+	//printf("Index is %d\n",node_queue.index);
 	if(node_queue.index>=0)
 	{
 		for(i=1;i<node_queue.index;i++)
@@ -54,12 +54,19 @@ void initialize_topology()
 		nodelist[i].no_of_neighbors = 0;
 		nodelist[i].count = 0;
 		nodelist[i].dv = (double*) malloc(sizeof(double)*total_nodes);
+		nodelist[i].next_hop = (int*) malloc(sizeof(int)*total_nodes);
 		for(j=0;j<total_nodes;j++)
 		{
 			if(i==j)
+			{
 				nodelist[i].dv[j] = 0;
+				nodelist[i].next_hop[j] = i;
+			}	
 			else
+			{
 				nodelist[i].dv[j] = INF;
+				nodelist[i].next_hop[j] = -1;
+			}
 		}
 		nodelist[i].neighbor_list = (neighbor*)malloc(sizeof(neighbor)*total_nodes);
 		memset(nodelist[i].neighbor_list,0,sizeof(neighbor)*total_nodes);
@@ -88,7 +95,10 @@ void initialize_topology()
 		nodelist[temp_j-1].no_of_neighbors++;
 
 		nodelist[temp_i-1].dv[temp_j-1] = temp_cost;
+		nodelist[temp_i-1].next_hop[temp_j-1] = temp_j-1; 
+
 		nodelist[temp_j-1].dv[temp_i-1] = temp_cost;
+		nodelist[temp_j-1].next_hop[temp_i-1] = temp_i-1;
         }
 }
 
@@ -102,7 +112,7 @@ void print_topology()
 		printf("Count is: %d\n",nodelist[i].count);
 //		printf("Neighbors are\n");
 		for(j=0;j<nodelist[i].no_of_neighbors;j++)
-			printf("%2d\t",nodelist[i].neighbor_list[j].id+1);
+		//	printf("%2d\t",nodelist[i].neighbor_list[j].id+1);
 		printf("\n");
 		for(j=0;j<nodelist[i].no_of_neighbors;j++)
 			printf("%2d\t",nodelist[i].neighbor_list[j].index_in_neighbor);
@@ -110,7 +120,7 @@ void print_topology()
 		printf("\nDistance vector is\n");
 		for(j=0;j<total_nodes;j++)
 			printf("%.2lf\t",nodelist[i].dv[j]);
-		printf("\n");
+		//printf("\n");
 	}			
 }
 
@@ -132,13 +142,14 @@ void update_distance_vector(int node_id,int neighbor_index)
 	int i;
 	int flag = 0;
 	int neighbor_id = nodelist[node_id].neighbor_list[neighbor_index].id;
-	printf("node is %d and neighbor is %d\n",node_id,neighbor_id);
+	//printf("node is %d and neighbor is %d\n",node_id,neighbor_id);
 	for(i=0;i<total_nodes;i++)
 	{	
 		double new_distance = nodelist[node_id].dv[neighbor_id]+nodelist[node_id].neighbor_list[neighbor_index].dv[i];
-		printf("for node %d current distance is %.2lf and new distance is %.2lf\n",i,nodelist[node_id].dv[i],new_distance);
+//		printf("for node %d current distance is %.2lf and new distance is %.2lf\n",i,nodelist[node_id].dv[i],new_distance);
 		if(nodelist[node_id].dv[i]>new_distance)
 		{
+			nodelist[node_id].next_hop[i] = neighbor_id;
 			nodelist[node_id].dv[i] = new_distance;
 			nodelist[node_id].send_flag++;
 			flag++;
@@ -147,15 +158,17 @@ void update_distance_vector(int node_id,int neighbor_index)
 	if(flag)
 	{
 		nodelist[node_id].count++;
-		printf("send flag is %d\n",nodelist[node_id].send_flag);
+		//printf("send flag is %d\n",nodelist[node_id].send_flag);
 	}
 }
 
-void print_dv(int i)
+void print_r_table(int i)
 {
 	int j;
-	 for(j=0;j<total_nodes;j++)
-		printf("%.2lf\t",nodelist[i].dv[j]);
+	printf("Destination\tNext Hop\tCost\n");
+	printf("---------------------------------------------------------------------------\n");
+	for(j=0;j<total_nodes;j++)
+		printf("    %d\t\t  %d\t\t%.2lf\n",j+1,nodelist[i].next_hop[j]+1,nodelist[i].dv[j]);
 }
 
 int get_max_count()
@@ -181,39 +194,35 @@ int main(int argc, char *argv[]){
                 perror("Cannot Open File\n");
                 exit(-1);
         }
-//	printf("File open\n");
 	initialize_topology();
 	init_queue();
-	printf("Before algorithm\n");
-	print_topology();
+	//print_topology();
 	initial_node = atoi(argv[1])-1;
 	send_distance_vector(initial_node);
 	while(1)
 	{
 		curr_node = remove_from_queue();
-		printf("inside while %d\n",curr_node.node_id);
+//		printf("inside while %d\n",curr_node.node_id);
 		if(curr_node.node_id == -1)
 			break;
-		//nodelist[curr_node.node_id].send_flag = 0;
 
 		update_distance_vector(curr_node.node_id,curr_node.neighbor_id);
-	//	printf("inside while again %d\n",curr_node.node_id);
 		if(nodelist[curr_node.node_id].send_flag)
 			send_distance_vector(curr_node.node_id);
-	//	printf("inside while 3rd time %d\n",curr_node.node_id);
 		nodelist[curr_node.node_id].send_flag = 0;
-	//	printf("inside while finally %d\n",curr_node.node_id);
 	}
-	printf("After Algorithm\n");
-	print_topology();
+	//print_topology();
+	int node1 = atoi(argv[3])-1;
+	int node2 = atoi(argv[4])-1;
 
-	printf("\n\nDistance vector for node %d is\n",atoi(argv[3]));
-	print_dv(atoi(argv[3])-1);
+	printf("\n\nRouting table for node %d is\n",node1+1);
+	print_r_table(node1);
 
-	printf("\nDistance vector for node %d is\n",atoi(argv[4]));
-	print_dv(atoi(argv[4])-1);
+	printf("\nRouting Table for node %d is\n",node2+1);
+	print_r_table(node2);
 
 	int max_count_id = get_max_count();
+	printf("Shortest distance between %d and %d is %.2lf",node1+1,node2+1,nodelist[node1].dv[node2]);
 	printf("\nMax iterations is %d for node %d \n",nodelist[max_count_id].count,max_count_id+1);
 	
 	return 0;
