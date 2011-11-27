@@ -11,6 +11,8 @@
 #include <netinet/in.h>
 #include <ifaddrs.h>
 #include <net/if.h>
+#include <pthread.h>
+#include <time.h>
 #define INF 999999.0
 
 typedef struct neighbor_ {

@@ -8,13 +8,13 @@ all: $(objects) link distance extra
 $(objects): $(includes)
 
 link: 
-	cc -o link_state link_state.o -lm
+	cc -o link_state link_state.o -lm -lpthread
 
 distance: 
-	cc -o distance_vector distance_vector.o -lm
+	cc -o distance_vector distance_vector.o -lm -lpthread
 
 extra:
-	cc -o extra_credit extra_credit.o -lm
+	cc -o extra_credit extra_credit.o -lm -lpthread
 .PHONY: clean 
 clean:
 	rm -f $(out) $(objects)
