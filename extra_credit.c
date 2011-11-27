@@ -18,9 +18,9 @@ int udt_recv()
         int numbytes,data_length;
         int addr_len = sizeof (sender_addr);
 	int i;
-	printf("Before Receive\n");
+//	printf("Before Receive\n");
         numbytes=recvfrom(sock, buf, 5000 , 0,(struct sockaddr *)&sender_addr, &addr_len);
-	printf("Received BUFFER: %s\n",buf);
+//	printf("Received BUFFER: %s\n",buf);
 	a = strtok(buf," ");
 	for(i=0;i<total_nodes;i++)
 	{
@@ -37,7 +37,7 @@ int udt_recv()
 		recv_dv[i] = atoi(a);
 	}
 	
-	printf("Received DV from %d:\n",recv_id+1);
+//	printf("Received DV from %d:\n",recv_id+1);
 	for(i=0;i<node.no_of_neighbors;i++)
 		if(node.neighbor_list[i].id == recv_id)
 		{
@@ -85,7 +85,7 @@ int udt_send(int i)
                 exit(-1);
         }
  //       fflush(stdout);
-	printf("Will send: %s\n",buf);
+	//HIDEprintf("Will send: %s\n",buf);
 }
 
 
@@ -257,7 +257,7 @@ void update_distance_vector(int node_id,int neighbor_index)
 //              printf("for node %d current distance is %.2lf and new distance is %.2lf\n",i,nodelist[node_id].dv[i],new_distance);
                 if(node.dv[i]>new_distance)
                 {
-			printf("\nSetting next hop of %d to %d\ndistance is %lf\n\n",i,neighbor_id,new_distance);
+			//HIDEprintf("\nSetting next hop of %d to %d\ndistance is %lf\n\n",i,neighbor_id,new_distance);
                         node.next_hop[i] = neighbor_id;
                         node.dv[i] = new_distance;
                         node.send_flag++;
@@ -268,10 +268,14 @@ void update_distance_vector(int node_id,int neighbor_index)
 void print_r_table()
 {
         int j;
+	printf("Current Routing Table is: \n");
         printf("Destination\tNext Hop\tCost\n");
         printf("---------------------------------------------------------------------------\n");
         for(j=0;j<total_nodes;j++)
-                printf("    %d\t\t  %d\t\t%.2lf\n",j+1,node.next_hop[j]+1,node.dv[j]);
+        {
+	       printf("    %d\t\t  %d\t\t%.2lf\n",j+1,node.next_hop[j]+1,node.dv[j]);
+		//HIDEprintf("    %s:%d\t\t  %s:%d\t\t%.2lf\n",node.ipaddr,node.portnum,node.neighbor_list[node.next_hop[j]].ipaddr,node.neighbor_list[node.next_hop[j]].portnum,node.dv[j]);
+	}
 }
 
 void * print_table()
@@ -295,6 +299,7 @@ void * print_table()
 			change_count++;
 	}
 	print_r_table();
+	printf("*** CONVERGED .. Exiting ***\n");
 	exit(0);
 }
 
