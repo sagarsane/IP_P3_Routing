@@ -76,7 +76,6 @@ int main(int argc, char *argv[]){
 		gettimeofday(&start,NULL);
 		link_state(i+1,0);
 		save_path(i+1);
-	//	print_topology(i+1);
 		reset_topology();
 		gettimeofday(&end, NULL);
 		printf("Time taken for source Node %d is : %.15lf microseconds\n",i+1,(double)(end.tv_usec-start.tv_usec + (end.tv_sec-start.tv_sec)));
