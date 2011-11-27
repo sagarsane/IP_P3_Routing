@@ -5,7 +5,6 @@ FILE *file;
 double *recv_dv;
 int recv_id;
 
-
 int udt_recv()
 {
 	struct sockaddr_in sender_addr;

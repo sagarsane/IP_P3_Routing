@@ -1,7 +1,6 @@
 #ifndef DISTANCE_VECTOR
 #define DISTANCE_VECTOR
 #include<fcntl.h>
-
 #define INF 99
 
 typedef struct neighbor_ {

@@ -22,7 +22,6 @@ typedef struct neighbor_ {
 } neighbor;
 
 
-
 typedef struct node_ {
         int id;
     	char iface_name[64];

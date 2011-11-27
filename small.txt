@@ -1,0 +1,41 @@
+Time taken for source Node 1 is : 7.000000000000000 microseconds
+Time taken for source Node 2 is : 7.000000000000000 microseconds
+Time taken for source Node 3 is : 6.000000000000000 microseconds
+Time taken for source Node 4 is : 6.000000000000000 microseconds
+Time taken for source Node 5 is : 5.000000000000000 microseconds
+Time taken for source Node 6 is : 5.000000000000000 microseconds
+Time taken for source Node 7 is : 6.000000000000000 microseconds
+Time taken for source Node 8 is : 6.000000000000000 microseconds
+Time taken for source Node 9 is : 5.000000000000000 microseconds
+Time taken for source Node 10 is : 6.000000000000000 microseconds
+
+Routing table of source node 3 -->
+
+  Destination	  Next Hop 	Cost to Destination
+---------------------------------------------------
+  1		  8   			   3.00
+  2		  2   			   3.00
+  3		  3   			   0.00
+  4		  4   			   4.00
+  5		  8   			   3.00
+  6		  8   			   2.50
+  7		  8   			   5.50
+  8		  8   			   2.00
+  9		  8   			   3.00
+  10		  8   			   5.00
+
+Routing table of source node 9 -->
+
+  Destination	  Next Hop 	Cost to Destination
+---------------------------------------------------
+  1		  8   			   2.00
+  2		  8   			   6.00
+  3		  8   			   3.00
+  4		  8   			   6.00
+  5		  8   			   2.00
+  6		  8   			   1.50
+  7		  7   			   4.00
+  8		  8   			   1.00
+  9		  9   			   0.00
+  10		  10   			   3.00
+Cost of the Least cost path between Node1 (3) and Node2(9) is : 3.000000

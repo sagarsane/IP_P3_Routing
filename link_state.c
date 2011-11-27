@@ -40,9 +40,6 @@ void save_path(int current_node){
 	
 }
 
-void find_path(int node1, int node2)
-{
-}
 
 void reset_topology(){
 	int i;

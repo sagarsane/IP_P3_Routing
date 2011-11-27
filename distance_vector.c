@@ -3,6 +3,7 @@
 #include<string.h>
 #include"distance_vector.h"
 
+
 node *nodelist;
 int total_nodes;
 FILE *file;
