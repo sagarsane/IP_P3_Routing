@@ -1,11 +1,14 @@
+//run this code as ./extra_credit <id> <port> <total_nodes> <no_of_neighbors> <config_file> 
+
 #include "extra_credit.h"
 int sock;
 int total_nodes;
 FILE *file;
-double *recv_dv;
+double *recv_dv,*old_dv;
 int recv_id;
 struct timespec sleepTime;
 struct timespec remainingSleepTime;
+int change_count;
 
 int udt_recv()
 {
@@ -15,8 +18,9 @@ int udt_recv()
         int numbytes,data_length;
         int addr_len = sizeof (sender_addr);
 	int i;
+	printf("Before Receive\n");
         numbytes=recvfrom(sock, buf, 5000 , 0,(struct sockaddr *)&sender_addr, &addr_len);
-//	printf("Received BUFFER: %s\n",buf);
+	printf("Received BUFFER: %s\n",buf);
 	a = strtok(buf," ");
 	for(i=0;i<total_nodes;i++)
 	{
@@ -33,10 +37,18 @@ int udt_recv()
 		recv_dv[i] = atoi(a);
 	}
 	
-//	printf("Received DV from %d:\n",recv_id+1);
-	for(i=0;i<total_nodes;i++){
+	printf("Received DV from %d:\n",recv_id+1);
+	for(i=0;i<node.no_of_neighbors;i++)
+		if(node.neighbor_list[i].id == recv_id)
+		{
+			if(node.neighbor_list[i].send_flag)
+				udt_send(i);
+			node.neighbor_list[i].send_flag=0;
+			break;
+		}
+//	for(i=0;i<total_nodes;i++){
 //		printf("%.2lf ",recv_dv[i]);
-	}
+//	}
 //	printf("\n");
 
 }
@@ -73,7 +85,7 @@ int udt_send(int i)
                 exit(-1);
         }
  //       fflush(stdout);
-//	printf("Will send: %s\n",buf);
+	printf("Will send: %s\n",buf);
 }
 
 
@@ -158,6 +170,11 @@ void print_dv(){
 
 void initialize(int argc, char *argv[]){
 	int i;
+
+	change_count = 0;
+	sleepTime.tv_sec=5;
+        sleepTime.tv_nsec=0;
+
 	total_nodes = atoi(argv[3]);
 	node.portnum = atoi(argv[2]);
 	node.no_of_neighbors = atoi(argv[4]);
@@ -165,14 +182,15 @@ void initialize(int argc, char *argv[]){
 
 
 	recv_dv = (double *)malloc(sizeof(double) * total_nodes);
+	old_dv = (double *)malloc(sizeof(double) * total_nodes);
 	node.dv = (double *)malloc(sizeof(double) * total_nodes);
 	node.next_hop = (int *)malloc(sizeof(int) * total_nodes);
 	node.neighbor_list = (neighbor *)malloc(sizeof(neighbor) * node.no_of_neighbors);
 	node.id = atoi(argv[1])-1;
 	node.send_flag = 1;
-	for(i = 0;i < node.no_of_neighbors; i++){
-		node.neighbor_list[i].dv = (double *)malloc(sizeof(double) * total_nodes);
-	}
+	//for(i = 0;i < node.no_of_neighbors; i++){
+	//	node.neighbor_list[i].dv = (double *)malloc(sizeof(double) * total_nodes);
+	//}
 
 	
 	file = fopen(argv[5],"r");
@@ -202,8 +220,10 @@ void initialize(int argc, char *argv[]){
 	while(fscanf(file,"%d %s %d %lf",&temp_id,temp_ipaddr,&temp_portnum,&temp_cost)!=EOF){
 		node.neighbor_list[i].id = temp_id-1;
 		node.dv[temp_id-1] = temp_cost;
+		node.next_hop[temp_id-1] = temp_id-1;
 		strcpy(node.neighbor_list[i].ipaddr,temp_ipaddr);
 		node.neighbor_list[i].portnum = temp_portnum;
+		node.neighbor_list[i].send_flag = 1;
 		i++;
 	}
 
@@ -230,28 +250,19 @@ void update_distance_vector(int node_id,int neighbor_index)
 {
         int i;
         int flag = 0;
-//        int neighbor_id = nodelist[node_id].neighbor_list[neighbor_index].id;
 	int neighbor_id = neighbor_index;
-        //printf("node is %d and neighbor is %d\n",node_id,neighbor_id);
         for(i=0;i<total_nodes;i++)
         {
                 double new_distance = node.dv[neighbor_id]+recv_dv[i];//node.neighbor_list[neighbor_id].dv[i];//nodelist[node_id].dv[neighbor_id]+nodelist[node_id].neighbor_list[neighbor_index].dv[i];
 //              printf("for node %d current distance is %.2lf and new distance is %.2lf\n",i,nodelist[node_id].dv[i],new_distance);
                 if(node.dv[i]>new_distance)
                 {
-			printf("\nSetting next hop of %d to %d\n\n",i,neighbor_id);
+			printf("\nSetting next hop of %d to %d\ndistance is %lf\n\n",i,neighbor_id,new_distance);
                         node.next_hop[i] = neighbor_id;
                         node.dv[i] = new_distance;
                         node.send_flag++;
-                        flag++;
                 }
         }
-//        if(flag)
- //       {
-                //nodelist[node_id].count++;
-		
-                //printf("send flag is %d\n",nodelist[node_id].send_flag);
-  //      }
 }
 
 void print_r_table()
@@ -265,23 +276,42 @@ void print_r_table()
 
 void * print_table()
 {
-	
-	while(1)
+	int i;
+	while(change_count < 3)
 	{
+		for(i=0;i<total_nodes;i++)
+			old_dv[i] = node.dv[i];
+
 		nanosleep(&sleepTime,&remainingSleepTime);
-		print_r_table();
+
+		for(i=0;i<total_nodes;i++)
+			if(old_dv[i] != node.dv[i])	
+			{
+				change_count = 0;
+				break;
+			}
+
+		if(i==total_nodes)
+			change_count++;
 	}
+	print_r_table();
+	exit(0);
 }
 
 int main(int argc, char *argv[]){
 
 	int i;
-	sleepTime.tv_sec=5;
-        sleepTime.tv_nsec=0;
 
+	if(argc!=6)
+	{
+		printf("Usage: ./extra_credit <id> <port> <total_nodes> <no_of_neighbors> <config_file>\n");
+		exit(-1);
+	}
+
+
+	initialize(argc,argv);
 	pthread_t printer;
 	pthread_create(&printer,NULL,print_table,NULL);
-	initialize(argc,argv);
 	print_dv();
 	for(i=0;i<node.no_of_neighbors;i++)
 		udt_send(i);
@@ -292,8 +322,9 @@ int main(int argc, char *argv[]){
 		{
 			for(i=0;i<node.no_of_neighbors;i++)
 				udt_send(i);
-			//node.send_flag = 0;
+			node.send_flag = 0;
+			print_r_table();
 		}
-		node.send_flag = 0;
+		//node.send_flag = 0;
 	}
 }

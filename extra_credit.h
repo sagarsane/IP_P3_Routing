@@ -19,8 +19,8 @@ typedef struct neighbor_ {
         int id;
 	char ipaddr[16];
 	int portnum;
-        //int index_in_neighbor;
-        double *dv;
+        int send_flag;
+//        double *dv;
 } neighbor;
 
 
