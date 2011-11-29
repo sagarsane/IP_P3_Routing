@@ -35,6 +35,8 @@ typedef struct node_ {
         neighbor *neighbor_list;
         double *dv;
         int *next_hop;
+	char **ipaddrs;
+	int *portnums;
 } Node;
 
 

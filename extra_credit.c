@@ -179,7 +179,11 @@ void initialize(int argc, char *argv[]){
 	node.portnum = atoi(argv[2]);
 	node.no_of_neighbors = atoi(argv[4]);
 	populate_public_ip();
-
+	
+	node.ipaddrs = (char **)malloc(sizeof(char *) * total_nodes);
+	for(i = 0; i < total_nodes; i++)
+		node.ipaddrs[i] = (char *)malloc(sizeof(char) * 128);
+	node.portnums = (int * )malloc(sizeof(int) * total_nodes);
 
 	recv_dv = (double *)malloc(sizeof(double) * total_nodes);
 	old_dv = (double *)malloc(sizeof(double) * total_nodes);
@@ -188,10 +192,9 @@ void initialize(int argc, char *argv[]){
 	node.neighbor_list = (neighbor *)malloc(sizeof(neighbor) * node.no_of_neighbors);
 	node.id = atoi(argv[1])-1;
 	node.send_flag = 1;
-	//for(i = 0;i < node.no_of_neighbors; i++){
-	//	node.neighbor_list[i].dv = (double *)malloc(sizeof(double) * total_nodes);
-	//}
 
+	strcpy(node.ipaddrs[node.id],node.ipaddr);
+	node.portnums[node.id] = node.portnum;
 	
 	file = fopen(argv[5],"r");
 	if(!file){
@@ -218,12 +221,19 @@ void initialize(int argc, char *argv[]){
 	char temp_ipaddr[128];
 	i = 0;
 	while(fscanf(file,"%d %s %d %lf",&temp_id,temp_ipaddr,&temp_portnum,&temp_cost)!=EOF){
-		node.neighbor_list[i].id = temp_id-1;
-		node.dv[temp_id-1] = temp_cost;
-		node.next_hop[temp_id-1] = temp_id-1;
-		strcpy(node.neighbor_list[i].ipaddr,temp_ipaddr);
-		node.neighbor_list[i].portnum = temp_portnum;
-		node.neighbor_list[i].send_flag = 1;
+		if(temp_cost != 9999)
+		{
+			node.neighbor_list[i].id = temp_id-1;
+			node.dv[temp_id-1] = temp_cost;
+			node.next_hop[temp_id-1] = temp_id-1;
+			strcpy(node.neighbor_list[i].ipaddr,temp_ipaddr);
+			node.neighbor_list[i].portnum = temp_portnum;
+			node.neighbor_list[i].send_flag = 1;
+		}
+		
+		//all nodes info in here
+		strcpy(node.ipaddrs[temp_id-1], temp_ipaddr);
+		node.portnums[temp_id-1] = temp_portnum;
 		i++;
 	}
 
@@ -269,11 +279,11 @@ void print_r_table()
 {
         int j;
 	printf("Current Routing Table is: \n");
-        printf("Destination\tNext Hop\tCost\n");
-        printf("---------------------------------------------------------------------------\n");
+        printf("\tDestination\t\t\t\tNext Hop\t\t\tCost\n");
+        printf("----------------------------------------------------------------------------------------\n");
         for(j=0;j<total_nodes;j++)
         {
-	       printf("    %d\t\t  %d\t\t%.2lf\n",j+1,node.next_hop[j]+1,node.dv[j]);
+	       printf("    %s:%d (%d) \t\t    %s:%d (%d) \t\t %.2lf\n",node.ipaddrs[j],node.portnums[j],j+1,node.ipaddrs[node.next_hop[j]],node.portnums[node.next_hop[j]],node.next_hop[j]+1,node.dv[j]);
 		//HIDEprintf("    %s:%d\t\t  %s:%d\t\t%.2lf\n",node.ipaddr,node.portnum,node.neighbor_list[node.next_hop[j]].ipaddr,node.neighbor_list[node.next_hop[j]].portnum,node.dv[j]);
 	}
 }
