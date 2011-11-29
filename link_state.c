@@ -75,7 +75,7 @@ int main(int argc, char *argv[]){
 		save_path(i+1);
 		reset_topology();
 		gettimeofday(&end, NULL);
-		printf("Time taken for source Node %d is : %.15lf microseconds\n",i+1,(double)(end.tv_usec-start.tv_usec + (end.tv_sec-start.tv_sec)));
+//		printf("Time taken for source Node %d is : %.15lf microseconds\n",i+1,(double)(end.tv_usec-start.tv_usec + (end.tv_sec-start.tv_sec)));
 
 
 	}
@@ -88,7 +88,7 @@ int main(int argc, char *argv[]){
 
 	print_topology(atoi(argv[2]));
 	print_topology(atoi(argv[3]));
-	printf("Cost of the Least cost path between Node1 (%d) and Node2(%d) is : %lf\n",atoi(argv[2]),atoi(argv[3]),node[atoi(argv[2])-1].saved_cost[atoi(argv[3])-1]);
+	printf("\nCost of the Least cost path between Node1(%d) and Node2(%d) is : %.2lf\n\n",atoi(argv[2]),atoi(argv[3]),node[atoi(argv[2])-1].saved_cost[atoi(argv[3])-1]);
 	
 	for(i=0;i<total_nodes;i++)
 	{
@@ -179,7 +179,7 @@ void print_topology(int src)
 		printf("\n");
 	}
 	*/
-	printf("\nRouting table of source node %d -->\n\n",src);
+	printf("\nRouting table of node %d -->\n\n",src);
         printf("  Destination\t  Next Hop \tCost to Destination\n");
         printf("---------------------------------------------------\n");
 

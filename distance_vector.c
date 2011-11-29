@@ -167,7 +167,7 @@ void print_r_table(int i)
 {
 	int j;
 	printf("Destination\tNext Hop\tCost\n");
-	printf("---------------------------------------------------------------------------\n");
+	printf("------------------------------------\n");
 	for(j=0;j<total_nodes;j++)
 		printf("    %d\t\t  %d\t\t%.2lf\n",j+1,nodelist[i].next_hop[j]+1,nodelist[i].dv[j]);
 }
@@ -216,15 +216,15 @@ int main(int argc, char *argv[]){
 	int node1 = atoi(argv[3])-1;
 	int node2 = atoi(argv[4])-1;
 
-	printf("\n\nRouting table for node %d is\n",node1+1);
+	printf("\n\nRouting table for node %d-->\n\n",node1+1);
 	print_r_table(node1);
 
-	printf("\nRouting Table for node %d is\n",node2+1);
+	printf("\nRouting Table for node %d-->\n\n",node2+1);
 	print_r_table(node2);
 
 	int max_count_id = get_max_count();
-	printf("Shortest distance between %d and %d is %.2lf",node1+1,node2+1,nodelist[node1].dv[node2]);
-	printf("\nMax iterations is %d for node %d \n",nodelist[max_count_id].count,max_count_id+1);
+	printf("\nCost of the Least cost path between Node1(%d) and Node 2(%d) is : %.2lf\n\n",node1+1,node2+1,nodelist[node1].dv[node2]);
+//	printf("\nMax iterations is %d for node %d \n",nodelist[max_count_id].count,max_count_id+1);
 	
 	return 0;
 }
