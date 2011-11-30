@@ -278,7 +278,7 @@ void update_distance_vector(int node_id,int neighbor_index)
 void print_r_table()
 {
         int j;
-	printf("Current Routing Table is: \n");
+	printf("Routing Table at Node %d is: \n", node.id -1 );
         printf("\tDestination\t\t\t\tNext Hop\t\t\tCost\n");
         printf("----------------------------------------------------------------------------------------\n");
         for(j=0;j<total_nodes;j++)
@@ -309,7 +309,7 @@ void * print_table()
 			change_count++;
 	}
 	print_r_table();
-	printf("*** CONVERGED .. Exiting ***\n");
+	printf("*** CONVERGED AT NODE : %d .... Exiting ***\n\n",node.id+1);
 	exit(0);
 }
 
@@ -327,7 +327,7 @@ int main(int argc, char *argv[]){
 	initialize(argc,argv);
 	pthread_t printer;
 	pthread_create(&printer,NULL,print_table,NULL);
-	print_dv();
+	//print_dv();
 	for(i=0;i<node.no_of_neighbors;i++)
 		udt_send(i);
 	while(1){
