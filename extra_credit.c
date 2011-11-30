@@ -278,7 +278,7 @@ void update_distance_vector(int node_id,int neighbor_index)
 void print_r_table()
 {
         int j;
-	printf("Routing Table at Node %d is: \n", node.id -1 );
+	printf("Routing Table at Node %d is: \n", node.id + 1 );
         printf("\tDestination\t\t\t\tNext Hop\t\t\tCost\n");
         printf("----------------------------------------------------------------------------------------\n");
         for(j=0;j<total_nodes;j++)
